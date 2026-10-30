@@ -1,0 +1,1 @@
+Directorio reservado para migraciones Alembic. La creación automática de tablas se mantiene para facilitar el primer arranque del prototipo; antes de producción genera la primera revisión con `alembic revision --autogenerate` y aplica `alembic upgrade head`.

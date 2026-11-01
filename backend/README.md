@@ -6,14 +6,14 @@ Backend REST para el prototipo académico CleanSpace. Está separado del fronten
 
 ```powershell
 cd backend
-py -3.11 -m venv .venv
-.venv\Scripts\Activate.ps1
+python -m venv .venv
+.venv\Scripts\activate.bat
 pip install -r requirements.txt
 copy .env.example .env
 # Edita .env y cambia JWT_SECRET_KEY, RFID_HMAC_KEY e INITIAL_ADMIN_PASSWORD
 # si tienes Windows 11 con Python 3.13 instalado, usa `python` y no `py -3.11`
 python -m scripts.seed_data
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+python -muvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Si PowerShell bloquea la activación: `Set-ExecutionPolicy -Scope Process Bypass`.
@@ -27,10 +27,29 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 python -m scripts.seed_data
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Documentación interactiva: http://127.0.0.1:8000/docs. Health: http://127.0.0.1:8000/health.
+
+## Documentación automática de endpoints
+
+FastAPI genera la documentación OpenAPI/Swagger automáticamente a partir de los decoradores y modelos Pydantic. Esto permite mantener todos los endpoints sincronizados sin duplicar la especificación a mano.
+
+URLs disponibles cuando el servicio corre:
+
+- Swagger UI: http://127.0.0.1:8000/docs
+- OpenAPI JSON: http://127.0.0.1:8000/openapi.json
+- ReDoc: http://127.0.0.1:8000/redoc
+
+Resumen de grupos principales:
+
+- Autenticación: `/health`, `/api/v1/auth/login`, `/api/v1/auth/refresh`, `/api/v1/auth/logout`, `/api/v1/auth/me`
+- Administración: `/api/v1/roles`, `/api/v1/personas`, `/api/v1/cuartos`, `/api/v1/dispositivos`, `/api/v1/tarjetas`, `/api/v1/permisos`
+- IoT y control: `/api/v1/iot/auth`, `/api/v1/iot/heartbeat`, `/api/v1/iot/telemetria`, `/api/v1/iot/acceso/validar`, `/api/v1/iot/comandos/pendientes`, `/api/v1/iot/comandos/{id}/ack`
+- Monitoreo y analítica: `/api/v1/comandos`, `/api/v1/monitoreo/lecturas`, `/api/v1/monitoreo/historico`, `/api/v1/accesos`, `/api/v1/avisos`, `/api/v1/analitica/*`, `/api/v1/dashboard/admin/summary`
+
+Si quieres exportar esta documentación fuera de la app, basta con usar el esquema OpenAPI y generarlo en Postman, Redocly o una página estática.
 
 ## Conectar Next.js
 

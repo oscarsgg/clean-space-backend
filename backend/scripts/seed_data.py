@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from app.core.config import get_settings
 from app.core.security import hash_password, hash_rfid
-from app.db.session import Base, engine, SessionLocal
-from app.models.models import *
+from app.db.database import Base, engine, SessionLocal
+from app.models import *
 Base.metadata.create_all(bind=engine)
 db=SessionLocal(); s=get_settings()
 roles={"ADMINISTRADOR":"Administrador","SUPERVISOR":"Supervisor","PERSONAL_AUTORIZADO":"Personal autorizado"}

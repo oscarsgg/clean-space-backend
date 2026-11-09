@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cleanspace_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cleanspace}
+      POSTGRES_USER: ${POSTGRES_USER:-cleanspace}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cleanspace_dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5437}:5432"
+    volumes:
+      - cleanspace_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  cleanspace_postgres_data:

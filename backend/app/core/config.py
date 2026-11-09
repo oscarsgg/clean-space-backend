@@ -7,7 +7,6 @@ class Settings(BaseSettings):
     app_name: str = "CleanSpace API"
     app_env: str = "development"
     app_debug: bool = False
-    database_url: str = "sqlite:///./cleanspace.db"
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     jwt_issuer: str = "cleanspace-api"
@@ -15,6 +14,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
     rfid_hmac_key: str
+    cleanspace_admin_key: str = ""
+    cleanspace_device_key: str = ""
     cors_origins: list[str] | str = ["http://localhost:3000"]
     initial_admin_email: str = "admin@cleanspace.local"
     initial_admin_password: str

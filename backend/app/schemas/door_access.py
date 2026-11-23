@@ -8,6 +8,7 @@ class DoorPermissionCreate(BaseModel):
     rfid_uid: str = Field(min_length=1, max_length=40)
     door_id: str = Field(min_length=1, max_length=100)
     is_active: bool = True
+    employee_id: int | None = None
 
 
 class DoorPermissionUpdate(BaseModel):
@@ -20,6 +21,9 @@ class DoorPermissionRead(BaseModel):
     door_id: str
     is_active: bool
     created_at: date
+    employee_id: int | None = None
+    employee_name: str | None = None
+    department: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

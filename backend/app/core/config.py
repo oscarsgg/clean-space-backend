@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     rfid_hmac_key: str
     cleanspace_admin_key: str = ""
     cleanspace_device_key: str = ""
-    cors_origins: list[str] | str = ["http://localhost:3000"]
+    cors_origins: list[str] | str = ["http://localhost:3000", "http://127.0.0.1:3000"]
     initial_admin_email: str = "admin@cleanspace.local"
     initial_admin_password: str
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")

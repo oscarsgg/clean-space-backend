@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.dependencies import require_admin_or_jwt
 from app.core.rfid import normalize_rfid_uid
 from app.db.database import get_db
 from app.models.employee import Employee
@@ -9,7 +10,17 @@ from app.models.rfid_tag import RfidTag
 from app.schemas.rfid_tag import RfidTagCreate, RfidTagRead, RfidTagUpdate
 
 
-router = APIRouter(prefix="/rfid-tags", tags=["RFID tags"])
+router = APIRouter(
+    prefix="/rfid-tags",
+    tags=["RFID tags"],
+    dependencies=[Depends(require_admin_or_jwt)],
+)
+
+
+@router.get("/last-scanned")
+def get_last_scanned():
+    from app.api.v1.device_access import get_last_scanned_card
+    return get_last_scanned_card()
 
 
 @router.post("/", response_model=RfidTagRead, status_code=status.HTTP_201_CREATED)

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, String, Text
+from sqlalchemy import DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, now
@@ -16,5 +16,7 @@ class Cleanroom(Base):
     description: Mapped[str] = mapped_column(Text, default="")
     status: Mapped[str] = mapped_column(String(20), default="ACTIVE", index=True)
     access_level: Mapped[str] = mapped_column(String(30), default="STANDARD")
+    capacity: Mapped[int] = mapped_column(Integer, default=8)
+    iso_class: Mapped[str] = mapped_column(String(20), default="ISO 7")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, onupdate=now)

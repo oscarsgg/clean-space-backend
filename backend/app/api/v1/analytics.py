@@ -1,19 +1,26 @@
-import json
-
 from fastapi import APIRouter, Depends
-from sqlalchemy import desc, extract, func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import output, require, utcnow
 from app.db.database import get_db
 from app.models import AccessEvent, Alert, Cleanroom, Device, ModelResult, SensorReading, User
+from app.services.ecbd import (
+    compute_access_patterns,
+    compute_correlation,
+    get_supervisor_summary,
+    train_isolation_forest,
+)
 
 
 router = APIRouter(tags=["Analytics"])
 
 
 @router.post("/analitica/etl/ejecutar")
-def run_etl(db: Session = Depends(get_db), user=Depends(require("ADMINISTRADOR"))):
+def run_etl(
+    db: Session = Depends(get_db),
+    user=Depends(require("ADMINISTRADOR", "SUPERVISOR")),
+):
     return {
         "status": "completed",
         "processed_readings": db.scalar(select(func.count(SensorReading.id))) or 0,
@@ -23,15 +30,11 @@ def run_etl(db: Session = Depends(get_db), user=Depends(require("ADMINISTRADOR")
 
 
 @router.post("/analitica/modelo/entrenar")
-def train_model(db: Session = Depends(get_db), user=Depends(require("ADMINISTRADOR"))):
-    readings_count = db.scalar(select(func.count(SensorReading.id))) or 0
-    result = ModelResult(
-        model_type="isolation_forest",
-        result_json=json.dumps({"training_rows": readings_count, "status": "trained"}),
-    )
-    db.add(result)
-    db.commit()
-    db.refresh(result)
+def train_model(
+    db: Session = Depends(get_db),
+    user=Depends(require("ADMINISTRADOR", "SUPERVISOR")),
+):
+    result = train_isolation_forest(db, user)
     return output(result)
 
 
@@ -73,11 +76,23 @@ def series(
     return output(db.scalars(query.limit(1000)).all())
 
 
+@router.get("/analitica/correlacion")
+def correlation(
+    cleanroom_id: int | None = None,
+    db: Session = Depends(get_db),
+    user=Depends(require("ADMINISTRADOR", "SUPERVISOR")),
+):
+    return compute_correlation(db, user, cleanroom_id)
+
+
 @router.get("/analitica/patrones-acceso")
 def access_patterns(db: Session = Depends(get_db), user=Depends(require("ADMINISTRADOR", "SUPERVISOR"))):
-    hour = extract("hour", AccessEvent.occurred_at).label("hour")
-    rows = db.execute(select(hour, func.count(AccessEvent.id)).group_by(hour).order_by(hour)).all()
-    return [{"hour": int(hour), "count": count} for hour, count in rows]
+    return compute_access_patterns(db, user)
+
+
+@router.get("/dashboard/supervisor/summary")
+def supervisor_summary(db: Session = Depends(get_db), user=Depends(require("ADMINISTRADOR", "SUPERVISOR"))):
+    return get_supervisor_summary(db, user)
 
 
 @router.get("/dashboard/admin/summary")

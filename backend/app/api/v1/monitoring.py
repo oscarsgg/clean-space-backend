@@ -12,6 +12,7 @@ from app.db.database import get_db
 from app.models import AccessEvent, Alert, Command, Device, SensorReading
 from app.schemas.iot import TelemetryBatch
 from app.schemas.monitoring import CommandIn, ReadingIn
+from app.services.realtime import publish_event
 
 
 router = APIRouter(tags=["Monitoring"])
@@ -29,15 +30,19 @@ def create_command(
     db: Session = Depends(get_db),
     user=Depends(require("ADMINISTRADOR", "SUPERVISOR")),
 ):
-    if not db.get(Device, data.device_id):
+    device = db.get(Device, data.device_id)
+    if not device:
         raise HTTPException(404, "Dispositivo no encontrado")
+    ensure_room_access(user, device.cleanroom_id)
     if data.command not in {"alarma", "indicador", "bloquear", "normal", "leer_ahora"}:
         raise HTTPException(422, "Comando no permitido")
     item = Command(device_id=data.device_id, command=data.command, payload_json=json.dumps(data.payload))
     db.add(item)
     db.commit()
     db.refresh(item)
-    return output(item)
+    payload = output(item)
+    publish_event("command_created", payload)
+    return payload
 
 
 @router.post("/monitoreo/lecturas", status_code=201)
@@ -107,7 +112,12 @@ def acknowledge(
     item.status = "ACKNOWLEDGED"
     item.acknowledged_by = user.id
     item.acknowledged_at = utcnow()
+    cmd = None
     if item.device_id:
-        db.add(Command(device_id=item.device_id, command="normal", payload_json="{}"))
+        cmd = Command(device_id=item.device_id, command="normal", payload_json="{}")
+        db.add(cmd)
     db.commit()
+    if cmd:
+        db.refresh(cmd)
+        publish_event("command_created", output(cmd))
     return output(item)

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -21,3 +22,10 @@ class AccessValidationIn(BaseModel):
     device_id: int
     uid: str
     direction: str = "ENTRY"
+
+
+class AccessSimulationIn(BaseModel):
+    cleanroom_id: int
+    device_id: int | None = None
+    uid: str
+    direction: Literal["ENTRY", "EXIT"] = "ENTRY"

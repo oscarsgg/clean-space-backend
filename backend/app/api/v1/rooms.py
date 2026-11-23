@@ -20,6 +20,15 @@ def rooms(db: Session = Depends(get_db), user=Depends(current_user)):
     return output(items)
 
 
+@router.get("/{id}")
+def get_room(id: int, db: Session = Depends(get_db), user=Depends(current_user)):
+    item = db.get(Cleanroom, id)
+    if not item:
+        raise HTTPException(404, "Cuarto no encontrado")
+    ensure_room_access(user, id)
+    return output(item)
+
+
 @router.post("", status_code=201)
 def create_room(
     data: RoomIn,

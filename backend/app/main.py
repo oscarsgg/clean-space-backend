@@ -4,11 +4,12 @@ from app import models
 from app.api.v1.router import router as v1_router
 from app.core.cors import setup_cors
 from app.core.config import get_settings
-from app.db.database import Base, engine
+from app.db.database import Base, engine, ensure_schema_updates
 
 
 settings = get_settings()
 Base.metadata.create_all(bind=engine)
+ensure_schema_updates(engine)
 
 app = FastAPI(title=settings.app_name, version="2.0.0", description="API REST e IoT de CleanSpace")
 setup_cors(app)

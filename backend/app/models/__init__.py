@@ -1,5 +1,7 @@
 from .access import AccessEvent, AccessLog, AccessPermission, DoorPermission
+from .agent import AgentConversation, AgentDecisionLog, AgentMessage, AgentReport
 from .audit import AuditLog
+from .biometric import EmployeeBiometric
 from .cleanroom import Cleanroom
 from .command import Command
 from .device import Device
@@ -15,6 +17,10 @@ __all__ = [
 	"AccessEvent",
 	"AccessLog",
 	"AccessPermission",
+	"AgentConversation",
+	"AgentDecisionLog",
+	"AgentMessage",
+	"AgentReport",
 	"Alert",
 	"AuditLog",
 	"Cleanroom",
@@ -22,6 +28,7 @@ __all__ = [
 	"Device",
 	"DoorPermission",
 	"Employee",
+	"EmployeeBiometric",
 	"ModelResult",
 	"MonitoringParameter",
 	"RefreshSession",

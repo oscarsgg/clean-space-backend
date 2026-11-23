@@ -8,6 +8,8 @@ class RoomIn(BaseModel):
     description: str = ""
     access_level: str = "STANDARD"
     status: str = "ACTIVE"
+    capacity: int = Field(default=8, ge=1)
+    iso_class: str = Field(default="ISO 7", min_length=1, max_length=20)
 
 
 class RoomUpdate(BaseModel):
@@ -16,3 +18,5 @@ class RoomUpdate(BaseModel):
     description: str | None = None
     access_level: str | None = None
     status: str | None = None
+    capacity: int | None = Field(default=None, ge=1)
+    iso_class: str | None = Field(default=None, min_length=1, max_length=20)

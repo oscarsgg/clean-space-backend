@@ -2,12 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
+from app.core.dependencies import require_admin_or_jwt
 from app.db.database import get_db
 from app.models import AccessLog
 from app.schemas.access_logs import AccessLogCreate, AccessLogRead
 
 
-router = APIRouter(prefix="/access-logs", tags=["Access logs"])
+router = APIRouter(
+    prefix="/access-logs",
+    tags=["Access logs"],
+    dependencies=[Depends(require_admin_or_jwt)],
+)
 
 
 @router.post("/", response_model=AccessLogRead, status_code=201)
